@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Rocks;
 
 namespace OculusSpecsPatcher
 {
@@ -58,7 +57,7 @@ namespace OculusSpecsPatcher
             LogInfo("Located OafConnector class");
 
             // Find the method that we want to patch
-            var recSpecMethod = oafConnectorClass.GetMethods()
+            var recSpecMethod = oafConnectorClass.Methods
                 .FirstOrDefault(m => m.Name == "ProcessRecSpecUpdate");
 
             if (recSpecMethod == null)
