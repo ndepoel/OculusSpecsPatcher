@@ -47,7 +47,9 @@ namespace OculusSpecsPatcher
             }
 
             // Find the class we expect to be there
-            var oafConnectorClass = module.GetType("OafConnector");
+            var oafConnectorClass = module.Types
+                .FirstOrDefault(t => t.Name == "OafConnector");
+
             if (oafConnectorClass == null)
             {
                 LogError("Could not locate OafConnector class");
@@ -142,7 +144,7 @@ namespace OculusSpecsPatcher
             {
                 var operand = instruction.Operand as FieldDefinition;
                 if (prevInstruction != null && prevInstruction.OpCode == OpCodes.Ldloc_0 && instruction.OpCode == OpCodes.Ldfld && operand != null
-                    && operand.FieldType.FullName == "System.Boolean" && operand.DeclaringType.FullName == "OafJson.RecvIsUnderRecSpecInnerData" && operand.Name == "under")
+                    && operand.FieldType.FullName == "System.Boolean" && operand.DeclaringType.Name == "RecvIsUnderRecSpecInnerData" && operand.Name == "under")
                 {
                     return Tuple.Create(prevInstruction, instruction);
                 }
