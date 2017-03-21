@@ -59,19 +59,19 @@ namespace OculusSpecsPatcher
             LogInfo("Located OafConnector class");
 
             // Find the method that we want to patch
-            var recSpecMethod = oafConnectorClass.Methods
-                .FirstOrDefault(m => m.Name == "ProcessRecSpecUpdate");
+            var minSpecMethod = oafConnectorClass.Methods
+                .FirstOrDefault(m => m.Name == "ProcessMinSpecUpdate");
 
-            if (recSpecMethod == null)
+            if (minSpecMethod == null)
             {
-                LogError("Could not locate ProcessRecSpecUpdate method");
+                LogError("Could not locate ProcessMinSpecUpdate method");
                 return;
             }
 
-            LogInfo("Located ProcessRecSpecUpdate method");
+            LogInfo("Located ProcessMinSpecUpdate method");
             
             // Find the correct pattern of instructions that we know how to modify
-            var instructions = FindInstructions(recSpecMethod.Body);
+            var instructions = FindInstructions(minSpecMethod.Body);
             if (instructions == null)
             {
                 LogError("Could not find the correct instruction pattern in method");
@@ -80,11 +80,11 @@ namespace OculusSpecsPatcher
 
             LogInfo("Located CIL instructions to patch");
 
-            // Replace "recvIsUnderRecSpecInnerData.under" expression with "false"
+            // Replace "recvIsUnderMinSpecInnerData.under" expression with "false"
             try
             {
-                var cil = recSpecMethod.Body.GetILProcessor();
-                cil.Remove(instructions.Item1);     // Remove instruction to load recvIsUnderRecSpecInnerData variable onto the stack
+                var cil = minSpecMethod.Body.GetILProcessor();
+                cil.Remove(instructions.Item1);     // Remove instruction to load recvIsUnderMinSpecInnerData variable onto the stack
                 cil.Replace(instructions.Item2, cil.Create(OpCodes.Ldc_I4_0));  // Replace instruction to load field "under" with the boolean constant "false"
             }
             catch (Exception ex)
@@ -144,7 +144,7 @@ namespace OculusSpecsPatcher
             {
                 var operand = instruction.Operand as FieldDefinition;
                 if (prevInstruction != null && prevInstruction.OpCode == OpCodes.Ldloc_0 && instruction.OpCode == OpCodes.Ldfld && operand != null
-                    && operand.FieldType.FullName == "System.Boolean" && operand.DeclaringType.Name == "RecvIsUnderRecSpecInnerData" && operand.Name == "under")
+                    && operand.FieldType.FullName == "System.Boolean" && operand.DeclaringType.Name == "RecvIsUnderMinSpecInnerData" && operand.Name == "under")
                 {
                     return Tuple.Create(prevInstruction, instruction);
                 }
